@@ -11,11 +11,12 @@ public:
 	Client() = default;
 	~Client();
 
-	void Init();
-	void Connect(unsigned int p_port);
-	void Send(const std::string& p_message);
-	
+	void Init(std::string p_name);
+	void Connect(unsigned int p_port, const char* p_address);
+	void Send(std::string& p_message);
+	void ReceiveConfirmation();
 public:
+	std::string m_name;
 	SOCKET m_socket;
 	SOCKADDR_IN m_address;
 };

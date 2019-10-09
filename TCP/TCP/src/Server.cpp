@@ -48,6 +48,8 @@ void Server::Bind(unsigned int p_port)
 		std::cin.get();
 		return;
 	}
+	
+	m_port = p_port;
 	std::cout << "Bind" << std::endl;
 }
 
@@ -79,7 +81,6 @@ void Server::Accept()
 		return;
 	}
 	std::cout << "Accept" << std::endl;
-	std::cin.get();
 }
 
 void Server::Receive()
@@ -96,7 +97,8 @@ void Server::Receive()
 	std::cout << n << std::endl;
 	buffer[n] = '\0';
 	std::cout << buffer << std::endl;
-
-	std::cin.get();
+	const char* message = "8Received";
+	
+	send(m_cSock, message, sizeof (char) * 9, 0);
 }
 

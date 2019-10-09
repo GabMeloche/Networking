@@ -10,8 +10,10 @@ Client::~Client()
 	std::cin.get();
 }
 
-void Client::Init()
+void Client::Init(std::string p_name)
 {
+	m_name = p_name;
+	
 	WSADATA wsa;
 	int err = WSAStartup(MAKEWORD(2, 2), &wsa);
 	if (err < 0)
@@ -33,12 +35,12 @@ void Client::Init()
 	std::cout << "init socket" << std::endl;
 }
 
-void Client::Connect(unsigned p_port)
+void Client::Connect(unsigned p_port, const char* p_address)
 {
 	struct hostent* hostinfo = NULL;
 	m_address = SOCKADDR_IN{ 0 }; /* initialise la structure avec des 0 */
 
-	inet_pton(AF_INET, "127.0.0.1", &m_address.sin_addr);/* On encode l'adresse dans la variable sin.sin_addr*/
+	inet_pton(AF_INET, p_address, &m_address.sin_addr);/* On encode l'adresse dans la variable sin.sin_addr*/
 	m_address.sin_port = htons(p_port); /* on utilise htons pour le port */
 	m_address.sin_family = AF_INET;
 
@@ -51,11 +53,13 @@ void Client::Connect(unsigned p_port)
 		perror("connect()");
 
 	}
+
+	std::cout << m_name << " is connected to " << p_address << " on port " << p_port << std::endl;
 }
 
-void Client::Send(const std::string& p_message)
+void Client::Send(std::string& p_message)
 {
-	std::string buffer{ p_message };
+	std::string buffer{ m_name + ": " + p_message };
 
 	if (send(m_socket, buffer.c_str(), buffer.length(), 0) < 0)
 	{
@@ -63,5 +67,9 @@ void Client::Send(const std::string& p_message)
 	}
 
 	std::cout << "sending: " << buffer << std::endl;
-	std::cin.get();
+}
+
+void Client::ReceiveConfirmation()
+{
+	
 }

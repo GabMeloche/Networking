@@ -14,7 +14,12 @@ int	main()
 
 	server.Listen();
 	server.Accept();
-	server.Receive();
+
+	std::cout << "type EXIT to quit\n";
+	while(server.m_listen)
+	{
+		server.Receive();	
+	}
 	
 	return EXIT_SUCCESS;
 }

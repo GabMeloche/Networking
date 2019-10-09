@@ -2,6 +2,7 @@
 #include <WinSock2.h>
 #include <iostream>
 
+//1 client socket per client connection
 class Server
 {
 public:
@@ -15,6 +16,7 @@ public:
 	void Receive();
 
 	bool m_listen = true;
+	unsigned int m_port;
 	SOCKET m_socket;
 	SOCKET m_cSock;
 	SOCKADDR_IN m_address;
