@@ -16,7 +16,9 @@ int	main()
 
 	client.Connect(PORT);
 	
-	client.Send("mofo");
+	client.Send("hello world");
+	client.Send("hello world2");
+	client.Send("hello world3");
 
 	return EXIT_SUCCESS;
 }

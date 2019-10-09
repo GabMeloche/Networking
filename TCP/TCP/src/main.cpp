@@ -5,8 +5,6 @@
 
 #define PORT 8755
 
-
-
 int	main()
 {
 	Server server{};
@@ -17,5 +15,6 @@ int	main()
 	server.Listen();
 	server.Accept();
 	server.Receive();
+	
 	return EXIT_SUCCESS;
 }
