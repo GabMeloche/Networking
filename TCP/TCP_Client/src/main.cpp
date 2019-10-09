@@ -24,11 +24,10 @@ int	main()
 
 		char chars[1];
 		char received[9];
-		
-		std::cout << "receive1: " << recv(client.m_socket, chars, sizeof (char), 0) << std::endl;
-		std::cout << "receive2: " << recv(client.m_socket, received, sizeof(char) * 8, 0) << std::endl;
+		recv(client.m_socket, chars, sizeof(char), 0);
+		recv(client.m_socket, received, sizeof(char) * 8, 0);
 		received[8] = '\0';
-		std::cout << received << std::endl;
+		std::cout << received << std::endl << std::endl;
 	}
 
 	return EXIT_SUCCESS;

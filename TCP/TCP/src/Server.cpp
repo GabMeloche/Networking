@@ -2,13 +2,16 @@
 
 Server::~Server()
 {
-	closesocket(m_cSock);
-	std::cout << "close listen socket" << std::endl;
+	for (auto& socket : m_cSock)
+	{
+		closesocket(socket);
+		std::cout << "close listen socket" << std::endl;
+	}
+
 	closesocket(m_socket);
 	std::cout << "close socket" << std::endl;
 	WSACleanup();
 	std::cout << "Done" << std::endl;
-	std::cin.get();
 }
 
 void Server::Init()
@@ -22,7 +25,7 @@ void Server::Init()
 		return;
 	}
 	std::cout << "init" << std::endl;
-	
+
 	m_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (m_socket == INVALID_SOCKET)
 	{
@@ -48,7 +51,7 @@ void Server::Bind(unsigned int p_port)
 		std::cin.get();
 		return;
 	}
-	
+
 	m_port = p_port;
 	std::cout << "Bind" << std::endl;
 }
@@ -70,10 +73,10 @@ void Server::Accept()
 	SOCKADDR_IN csin = { 0 };
 
 	int sinsize = sizeof csin;
-	m_cSock = accept(m_socket, (SOCKADDR*)& csin, &sinsize);
+	m_cSock.push_back(accept(m_socket, (SOCKADDR*)& csin, &sinsize));
 
 
-	if (m_cSock == INVALID_SOCKET)
+	if (m_cSock.back() == INVALID_SOCKET)
 	{
 		perror("accept()");
 		std::cout << "INVALID_SOCKET" << std::endl;
@@ -83,22 +86,22 @@ void Server::Accept()
 	std::cout << "Accept" << std::endl;
 }
 
-void Server::Receive()
+void Server::Receive(SOCKET p_socket)
 {
 	char buffer[1024];
 	int n = 0;
 
-	if ((n = recv(m_cSock, buffer, sizeof buffer - 1, 0)) < 0)
+	if ((n = recv(p_socket, buffer, sizeof buffer - 1, 0)) < 0)
 	{
 		perror("recv()");
 		exit(errno);
 	}
 
-	std::cout << n << std::endl;
 	buffer[n] = '\0';
 	std::cout << buffer << std::endl;
 	const char* message = "8Received";
-	
-	send(m_cSock, message, sizeof (char) * 9, 0);
+
+	send(p_socket, message, sizeof(char) * 9, 0);
+
 }
 

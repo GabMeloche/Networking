@@ -37,6 +37,9 @@ void Client::Init(std::string p_name)
 
 void Client::Connect(unsigned p_port, const char* p_address)
 {
+	char request = '1';
+	send(m_socket, &request, sizeof(char), 0);
+	
 	struct hostent* hostinfo = NULL;
 	m_address = SOCKADDR_IN{ 0 }; /* initialise la structure avec des 0 */
 
