@@ -53,7 +53,7 @@ void Client::Connect(unsigned p_port, const char* p_address)
 
 	while (connect(m_socket, (SOCKADDR*)&m_address, sizeof(SOCKADDR)) == SOCKET_ERROR)
 	{
-		perror("connect()");
+		perror("connect() client");
 	}
 	
 	Send(m_name);
@@ -72,6 +72,7 @@ void Client::Connect(unsigned p_port, const char* p_address)
 
 void Client::Send(const std::string& p_message)
 {
+	
 	std::string buffer{ p_message };
 
 	if (send(m_socket, buffer.c_str(), buffer.length(), 0) < 0)
@@ -79,7 +80,27 @@ void Client::Send(const std::string& p_message)
 		perror("send()");
 	}
 
+	if (p_message == "CONNECTED_USERS")
+	{
+		std::cout << "asked for names\n";
+		ReceiveNames();
+		return;
+	}
 	std::cout << "sending: " << buffer << std::endl;
+}
+
+void Client::ReceiveNames()
+{
+	char buffer[1024];
+	int n = 0;
+	
+	if ((n = recv(m_socket, buffer, sizeof buffer, 0)) < 0)
+	{
+		perror("recv() server");
+		std::cin.get();
+		exit(errno);
+	}
+	std::cout << buffer << std::endl;
 }
 
 void Client::ReceiveConfirmation()

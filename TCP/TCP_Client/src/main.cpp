@@ -27,7 +27,6 @@ int	main()
 		client.Send(string);
 
 		char received[9];
-		//recv(client.m_socket, chars, sizeof(char), 0);
 		recv(client.m_socket, received, sizeof(char) * 9, 0);
 		received[8] = '\0';
 		std::cout << received << std::endl << std::endl;

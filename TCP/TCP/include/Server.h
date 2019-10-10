@@ -17,11 +17,12 @@ public:
 	void Listen();
 	void Accept();
 	static std::string Receive(SOCKET p_socket, bool p_print);
-	static void ReceiveThreaded(SOCKET p_socket, std::string p_name);
+	void ReceiveThreaded(SOCKET p_socket, std::string p_name);
 	char* ReceiveMessage(std::pair<const std::string, SOCKET>& p_cSock);
 	void Print(const char* p_message);
 	bool Ping(SOCKET p_socket);
 	void ReceiveAll();
+	void SendNames(SOCKET p_socket);
 	
 	bool m_listen = true;
 	unsigned int m_port;

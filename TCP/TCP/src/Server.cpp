@@ -91,12 +91,11 @@ void Server::Accept()
 		
 		m_cSock.try_emplace(std::string(name), cSock);
 
-		const char size = '9';
 		const char* message = "Connected";
 		//send(cSock, &size, sizeof(char), 0);
 		send(cSock, message, sizeof(char) * 10, 0);
 
-		std::thread t{ &Server::ReceiveThreaded,  m_cSock[name], name };
+		std::thread t{ &Server::ReceiveThreaded,  this, m_cSock[name], name };
 		t.detach();
 	}
 }
@@ -136,9 +135,8 @@ void Server::ReceiveThreaded(SOCKET p_socket, std::string p_name)
 
 		if ((n = recv(p_socket, buffer, sizeof buffer, 0)) < 0)
 		{
-			perror("recv()");
-			std::cin.get();
-			exit(errno);
+			std::cout << p_name << " has disconnected from server\n";
+			return;
 		}
 
 		buffer[n] = '\0';
@@ -149,7 +147,14 @@ void Server::ReceiveThreaded(SOCKET p_socket, std::string p_name)
 
 		const char* message = "Received";
 
+		if (tmp == "CONNECTED_USERS")
+		{
+			std::cout << "said connected\n";
+			SendNames(p_socket);
+			continue;
+		}
 		send(p_socket, message, sizeof(char) * 9, 0);
+
 	}
 }
 
@@ -160,7 +165,7 @@ char* Server::ReceiveMessage(std::pair<const std::string, SOCKET>& p_cSock)
 
 	if ((n = recv(p_cSock.second, buffer, sizeof buffer, 0)) < 0)
 	{
-		perror("recv()");
+		perror("recv() server");
 		std::cin.get();
 		exit(errno);
 	}
@@ -199,6 +204,15 @@ bool Server::Ping(SOCKET p_socket)
 		return false;
 	}
 	return true;
+}
+
+void Server::SendNames(SOCKET p_socket)
+{
+	std::string names = "Connected users: ";
+	for (auto& socket : m_cSock)
+		names += socket.first + ", ";
+
+	send(p_socket, names.c_str(), sizeof(names), 0);
 }
 
 

@@ -18,6 +18,15 @@ int	main()
 
 	std::cout << "type EXIT to quit\n";
 
+	while (true)
+	{
+		for (auto& socket: server.m_cSock)
+		{
+			if (!server.Ping(socket.second))
+				std::cout << socket.first << " has disconnected\n";
+		}
+	}
+	
 	t.join();
 	std::cin.get();
 	return EXIT_SUCCESS;
