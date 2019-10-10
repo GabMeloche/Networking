@@ -54,15 +54,25 @@ void Client::Connect(unsigned p_port, const char* p_address)
 	while (connect(m_socket, (SOCKADDR*)&m_address, sizeof(SOCKADDR)) == SOCKET_ERROR)
 	{
 		perror("connect()");
-
 	}
-
+	
+	Send(m_name + " has joined the server");
+	char size;
+	char connected[10];
+	char received[9];
+	recv(m_socket, received, sizeof(char) * 9, 0);
+	//recv(m_socket, &size, sizeof(char), 0);
+	recv(m_socket, connected, sizeof(char) * 10, 0);
+	connected[9] = '\0';
+	received[8] = '\0';
+	std::cout << received << std::endl << std::endl;
+	std::cout << connected << std::endl << std::endl;
 	std::cout << m_name << " is connected to " << p_address << " on port " << p_port << std::endl;
 }
 
-void Client::Send(std::string& p_message)
+void Client::Send(const std::string& p_message)
 {
-	std::string buffer{ m_name + ": " + p_message };
+	std::string buffer{ p_message };
 
 	if (send(m_socket, buffer.c_str(), buffer.length(), 0) < 0)
 	{
@@ -75,4 +85,10 @@ void Client::Send(std::string& p_message)
 void Client::ReceiveConfirmation()
 {
 	
+}
+
+void Client::ReceivePing()
+{
+	char ping[1];
+	recv(m_socket, ping, sizeof(char), 0);
 }

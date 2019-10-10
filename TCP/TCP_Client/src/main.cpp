@@ -18,14 +18,14 @@ int	main()
 
 	while(true)
 	{
+		//client.ReceivePing();
 		std::string string;
 		getline(std::cin, string);
 		client.Send(string);
 
-		char chars[1];
 		char received[9];
-		recv(client.m_socket, chars, sizeof(char), 0);
-		recv(client.m_socket, received, sizeof(char) * 8, 0);
+		//recv(client.m_socket, chars, sizeof(char), 0);
+		recv(client.m_socket, received, sizeof(char) * 9, 0);
 		received[8] = '\0';
 		std::cout << received << std::endl << std::endl;
 	}

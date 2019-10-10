@@ -1,6 +1,6 @@
 #include <WinSock2.h>
 #include <iostream>
-
+#include <chrono>
 #include <Server.h>
 #include <thread>
 #define PORT 8755
@@ -14,22 +14,11 @@ int	main()
 
 	server.Listen();
 
-	server.Accept();
+	std::thread t{ &Server::Accept, server };
+
 	std::cout << "type EXIT to quit\n";
-	
-	while(server.m_listen)
-	{
-		char buffer[1];
-		int n = recv(server.m_socket, buffer, sizeof(char), 0);
-		if (n > 0)
-		{
-			server.Accept();
-			/*std::thread t{ &Server::Receive, server, server.m_cSock.back() };
-			t.detach();*/
-		}
-		
-		server.Receive(server.m_cSock.back());
-	}
-	
+
+	t.join();
+	std::cin.get();
 	return EXIT_SUCCESS;
 }

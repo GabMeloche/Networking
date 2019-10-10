@@ -1,10 +1,11 @@
 #include <Server.h>
+#include <string>
 
 Server::~Server()
 {
 	for (auto& socket : m_cSock)
 	{
-		closesocket(socket);
+		closesocket(socket.second);
 		std::cout << "close listen socket" << std::endl;
 	}
 
@@ -70,38 +71,131 @@ void Server::Listen()
 
 void Server::Accept()
 {
-	SOCKADDR_IN csin = { 0 };
-
-	int sinsize = sizeof csin;
-	m_cSock.push_back(accept(m_socket, (SOCKADDR*)& csin, &sinsize));
-
-
-	if (m_cSock.back() == INVALID_SOCKET)
+	while (true)
 	{
-		perror("accept()");
-		std::cout << "INVALID_SOCKET" << std::endl;
-		std::cin.get();
-		return;
+		SOCKADDR_IN csin = { 0 };
+
+		int sinsize = sizeof csin;
+		SOCKET cSock = accept(m_socket, (SOCKADDR*)& csin, &sinsize);
+
+		if (cSock == INVALID_SOCKET)
+		{
+			perror("accept()");
+			std::cout << "INVALID_SOCKET" << std::endl;
+			std::cin.get();
+			return;
+		}
+
+		std::string name = Receive(cSock);
+		m_cSock.try_emplace(std::string(name), cSock);
+
+		const char size = '9';
+		const char* message = "Connected";
+		//send(cSock, &size, sizeof(char), 0);
+		send(cSock, message, sizeof(char) * 10, 0);
+
+		std::thread t{ &Server::ReceiveThreaded,  m_cSock.begin()->second };
+		t.detach();
 	}
-	std::cout << "Accept" << std::endl;
 }
 
-void Server::Receive(SOCKET p_socket)
+std::string Server::Receive(SOCKET p_socket)
+{
+
+		char buffer[1024];
+		int n = 0;
+
+		if ((n = recv(p_socket, buffer, sizeof buffer, 0)) < 0)
+		{
+			perror("recv()");
+			std::cin.get();
+			exit(errno);
+		}
+
+		buffer[n] = '\0';
+
+		std::string tmp = buffer;
+		
+		std::cout << tmp << std::endl;
+
+		const char* message = "Received";
+
+		send(p_socket, message, sizeof(char) * 9, 0);
+		return tmp;
+}
+
+void Server::ReceiveThreaded(SOCKET p_socket)
+{
+	while (true)
+	{
+		char buffer[1024];
+		int n = 0;
+
+		if ((n = recv(p_socket, buffer, sizeof buffer, 0)) < 0)
+		{
+			perror("recv()");
+			std::cin.get();
+			exit(errno);
+		}
+
+		buffer[n] = '\0';
+
+		std::string tmp = buffer;
+
+		std::cout << buffer << std::endl;
+
+		const char* message = "Received";
+
+		send(p_socket, message, sizeof(char) * 9, 0);
+	}
+}
+
+char* Server::ReceiveMessage(std::pair<const std::string, SOCKET>& p_cSock)
 {
 	char buffer[1024];
 	int n = 0;
 
-	if ((n = recv(p_socket, buffer, sizeof buffer - 1, 0)) < 0)
+	if ((n = recv(p_cSock.second, buffer, sizeof buffer, 0)) < 0)
 	{
 		perror("recv()");
+		std::cin.get();
 		exit(errno);
 	}
 
 	buffer[n] = '\0';
-	std::cout << buffer << std::endl;
-	const char* message = "8Received";
+	std::cout << p_cSock.first << ": " << buffer << std::endl;
 
-	send(p_socket, message, sizeof(char) * 9, 0);
+	const char* message = "Received";
 
+	send(p_cSock.second, message, sizeof(char) * 9, 0);
+	return buffer;
 }
+
+void Server::ReceiveAll()
+{
+	//while (true)
+	{
+		for (auto& socket : m_cSock)
+		{
+			ReceiveMessage(socket);
+		}
+	}
+}
+void Server::Print(const char* p_message)
+{
+	
+}
+
+bool Server::Ping(SOCKET p_socket)
+{
+	std::string buffer = "~";
+
+	if (send(p_socket, buffer.c_str(), buffer.length(), 0) <= 0)
+	{
+		closesocket(p_socket);
+		return false;
+	}
+	return true;
+}
+
 

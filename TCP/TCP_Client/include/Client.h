@@ -13,10 +13,13 @@ public:
 
 	void Init(std::string p_name);
 	void Connect(unsigned int p_port, const char* p_address);
-	void Send(std::string& p_message);
+	void Send(const std::string& p_message);
 	void ReceiveConfirmation();
+	void ReceivePing();
+	
 public:
 	std::string m_name;
 	SOCKET m_socket;
 	SOCKADDR_IN m_address;
+	
 };
