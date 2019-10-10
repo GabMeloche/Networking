@@ -56,7 +56,7 @@ void Client::Connect(unsigned p_port, const char* p_address)
 		perror("connect()");
 	}
 	
-	Send(m_name + " has joined the server");
+	Send(m_name);
 	char size;
 	char connected[10];
 	char received[9];

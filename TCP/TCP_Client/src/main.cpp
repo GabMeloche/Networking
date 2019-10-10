@@ -12,7 +12,10 @@ int	main()
 {
 	Client client;
 	
-	client.Init("Client 1");
+	std::cout << "enter your name: ";
+	std::string name;
+	getline(std::cin, name);
+	client.Init(name);
 
 	client.Connect(PORT, "127.0.0.1");
 

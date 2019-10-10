@@ -86,7 +86,9 @@ void Server::Accept()
 			return;
 		}
 
-		std::string name = Receive(cSock);
+		std::string name = Receive(cSock, false);
+		std::cout << name << " has joined the server\n";
+		
 		m_cSock.try_emplace(std::string(name), cSock);
 
 		const char size = '9';
@@ -94,37 +96,38 @@ void Server::Accept()
 		//send(cSock, &size, sizeof(char), 0);
 		send(cSock, message, sizeof(char) * 10, 0);
 
-		std::thread t{ &Server::ReceiveThreaded,  m_cSock.begin()->second };
+		std::thread t{ &Server::ReceiveThreaded,  m_cSock[name], name };
 		t.detach();
 	}
 }
 
-std::string Server::Receive(SOCKET p_socket)
+std::string Server::Receive(SOCKET p_socket, bool p_print)
 {
 
-		char buffer[1024];
-		int n = 0;
+	char buffer[1024];
+	int n = 0;
 
-		if ((n = recv(p_socket, buffer, sizeof buffer, 0)) < 0)
-		{
-			perror("recv()");
-			std::cin.get();
-			exit(errno);
-		}
+	if ((n = recv(p_socket, buffer, sizeof buffer, 0)) < 0)
+	{
+		perror("recv()");
+		std::cin.get();
+		exit(errno);
+	}
 
-		buffer[n] = '\0';
+	buffer[n] = '\0';
 
-		std::string tmp = buffer;
-		
+	std::string tmp = buffer;
+
+	if (p_print)
 		std::cout << tmp << std::endl;
 
-		const char* message = "Received";
+	const char* message = "Received";
 
-		send(p_socket, message, sizeof(char) * 9, 0);
-		return tmp;
+	send(p_socket, message, sizeof(char) * 9, 0);
+	return tmp;
 }
 
-void Server::ReceiveThreaded(SOCKET p_socket)
+void Server::ReceiveThreaded(SOCKET p_socket, std::string p_name)
 {
 	while (true)
 	{
@@ -142,7 +145,7 @@ void Server::ReceiveThreaded(SOCKET p_socket)
 
 		std::string tmp = buffer;
 
-		std::cout << buffer << std::endl;
+		std::cout << p_name << ": " << buffer << std::endl;
 
 		const char* message = "Received";
 
@@ -183,7 +186,7 @@ void Server::ReceiveAll()
 }
 void Server::Print(const char* p_message)
 {
-	
+
 }
 
 bool Server::Ping(SOCKET p_socket)
