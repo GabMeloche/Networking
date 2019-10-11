@@ -3,6 +3,8 @@
 #include <chrono>
 #include <Server.h>
 #include <thread>
+#include <string>
+
 #define PORT 8755
 
 int	main()
@@ -15,19 +17,11 @@ int	main()
 	server.Listen();
 
 	std::thread t{ &Server::Accept, server };
-
-	std::cout << "type EXIT to quit\n";
-
-	while (true)
-	{
-		for (auto& socket: server.m_cSock)
-		{
-			if (!server.Ping(socket.second))
-				std::cout << socket.first << " has disconnected\n";
-		}
+	
+	while (server.m_listen)
+	{		
 	}
 	
 	t.join();
-	std::cin.get();
 	return EXIT_SUCCESS;
 }

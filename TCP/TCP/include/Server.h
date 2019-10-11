@@ -16,15 +16,11 @@ public:
 	void Bind(unsigned int p_port);
 	void Listen();
 	void Accept();
-	static std::string Receive(SOCKET p_socket, bool p_print);
 	void ReceiveThreaded(SOCKET p_socket, std::string p_name);
-	char* ReceiveMessage(std::pair<const std::string, SOCKET>& p_cSock);
-	void Print(const char* p_message);
-	bool Ping(SOCKET p_socket);
-	void ReceiveAll();
 	void SendNames(SOCKET p_socket);
 	void Broadcast(const std::string& p_message, std::string p_name);
-	
+	std::string Receive(SOCKET p_socket, bool p_print);
+
 	bool m_listen = true;
 	unsigned int m_port;
 	SOCKET m_socket;

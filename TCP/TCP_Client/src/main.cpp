@@ -13,25 +13,25 @@ int	main()
 {
 	Client client;
 	
-	std::cout << "enter your name: ";
+	std::cout << "Enter your name: ";
 	std::string name;
 	getline(std::cin, name);
 	client.Init(name);
+	
+	std::cout << "Enter IP address of server (enter nothing for default local server): ";
+	std::string ip;
+	getline(std::cin, ip);
 
-	client.Connect(PORT, "127.0.0.1");
+	client.Connect(PORT, ip);
 	
 	std::thread t{ &Client::ReceiveBroadcast, client };
+	std::cout << "Type CONNECTED_USERS to see who's currently connected to the server\n";
+	
 	while(true)
 	{
-		//client.ReceivePing();
 		std::string string;
 		getline(std::cin, string);
 		client.Send(string);
-
-		char received[9];
-		recv(client.m_socket, received, sizeof(char) * 9, 0);
-		received[8] = '\0';
-		std::cout << received << std::endl << std::endl;
 	}
 	t.join();
 	return EXIT_SUCCESS;

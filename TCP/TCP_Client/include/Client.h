@@ -11,11 +11,9 @@ public:
 	Client() = default;
 	~Client();
 
-	void Init(std::string p_name);
-	void Connect(unsigned int p_port, const char* p_address);
+	void Init(const std::string& p_name);
+	void Connect(unsigned int p_port, std::string& p_address);
 	void Send(const std::string& p_message);
-	void ReceiveConfirmation();
-	void ReceivePing();
 	void ReceiveNames();
 	void ReceiveBroadcast();
 	

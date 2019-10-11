@@ -71,7 +71,7 @@ void Server::Listen()
 
 void Server::Accept()
 {
-	while (true)
+	while (m_listen)
 	{
 		SOCKADDR_IN csin = { 0 };
 
@@ -92,7 +92,6 @@ void Server::Accept()
 		m_cSock.try_emplace(std::string(name), cSock);
 
 		const char* message = "Connected";
-		//send(cSock, &size, sizeof(char), 0);
 		send(cSock, message, sizeof(char) * 10, 0);
 
 		std::thread t{ &Server::ReceiveThreaded,  this, m_cSock[name], name };
@@ -128,7 +127,7 @@ std::string Server::Receive(SOCKET p_socket, bool p_print)
 
 void Server::ReceiveThreaded(SOCKET p_socket, std::string p_name)
 {
-	while (true)
+	while (m_listen)
 	{
 		char buffer[1024];
 		int n = 0;
@@ -136,6 +135,8 @@ void Server::ReceiveThreaded(SOCKET p_socket, std::string p_name)
 		if ((n = recv(p_socket, buffer, sizeof buffer, 0)) < 0)
 		{
 			Broadcast(p_name + " has disconnected from server\n", p_name);
+			closesocket(p_socket);
+			m_cSock.erase(p_name);
 			return;
 		}
 
@@ -143,13 +144,11 @@ void Server::ReceiveThreaded(SOCKET p_socket, std::string p_name)
 
 		std::string tmp = buffer;
 
-		std::cout << p_name << ": " << buffer << std::endl;
-
 		const char* message = "Received";
 
 		if (tmp == "CONNECTED_USERS")
 		{
-			std::cout << "said connected\n";
+			std::cout << p_name << " asked for CONNECTED_USERS\n";
 			SendNames(p_socket);
 			continue;
 		}
@@ -158,23 +157,13 @@ void Server::ReceiveThreaded(SOCKET p_socket, std::string p_name)
 	}
 }
 
-bool Server::Ping(SOCKET p_socket)
-{
-	std::string buffer = "~";
-
-	if (send(p_socket, buffer.c_str(), buffer.length(), 0) <= 0)
-	{
-		closesocket(p_socket);
-		return false;
-	}
-	return true;
-}
-
 void Server::SendNames(SOCKET p_socket)
 {
 	std::string names = "Connected users: ";
 	for (auto& socket : m_cSock)
+	{
 		names += socket.first + ", ";
+	}
 
 	send(p_socket, names.c_str(), sizeof(names), 0);
 }

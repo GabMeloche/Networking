@@ -10,7 +10,7 @@ Client::~Client()
 	std::cin.get();
 }
 
-void Client::Init(std::string p_name)
+void Client::Init(const std::string& p_name)
 {
 	m_name = p_name;
 	
@@ -35,15 +35,18 @@ void Client::Init(std::string p_name)
 	std::cout << "init socket" << std::endl;
 }
 
-void Client::Connect(unsigned p_port, const char* p_address)
+void Client::Connect(unsigned p_port, std::string& p_address)
 {
+	if (p_address.empty())
+		p_address = "127.0.0.1";
+	
 	char request = '1';
 	send(m_socket, &request, sizeof(char), 0);
 	
 	struct hostent* hostinfo = NULL;
 	m_address = SOCKADDR_IN{ 0 }; /* initialise la structure avec des 0 */
 
-	inet_pton(AF_INET, p_address, &m_address.sin_addr);/* On encode l'adresse dans la variable sin.sin_addr*/
+	inet_pton(AF_INET, p_address.c_str(), &m_address.sin_addr);/* On encode l'adresse dans la variable sin.sin_addr*/
 	m_address.sin_port = htons(p_port); /* on utilise htons pour le port */
 	m_address.sin_family = AF_INET;
 
@@ -57,16 +60,6 @@ void Client::Connect(unsigned p_port, const char* p_address)
 	}
 	
 	Send(m_name);
-	char size;
-	char connected[10];
-	char received[9];
-	recv(m_socket, received, sizeof(char) * 9, 0);
-	//recv(m_socket, &size, sizeof(char), 0);
-	recv(m_socket, connected, sizeof(char) * 10, 0);
-	connected[9] = '\0';
-	received[8] = '\0';
-	std::cout << received << std::endl << std::endl;
-	std::cout << connected << std::endl << std::endl;
 	std::cout << m_name << " is connected to " << p_address << " on port " << p_port << std::endl;
 }
 
@@ -82,11 +75,9 @@ void Client::Send(const std::string& p_message)
 
 	if (p_message == "CONNECTED_USERS")
 	{
-		std::cout << "asked for names\n";
-		ReceiveNames();
+		//ReceiveNames();
 		return;
 	}
-	std::cout << "sending: " << buffer << std::endl;
 }
 
 void Client::ReceiveNames()
@@ -103,17 +94,6 @@ void Client::ReceiveNames()
 	std::cout << buffer << std::endl;
 }
 
-void Client::ReceiveConfirmation()
-{
-	
-}
-
-void Client::ReceivePing()
-{
-	char ping[1];
-	recv(m_socket, ping, sizeof(char), 0);
-}
-
 void Client::ReceiveBroadcast()
 {
 	while (true)
@@ -123,6 +103,7 @@ void Client::ReceiveBroadcast()
 
 		if ((n = recv(m_socket, buffer, sizeof buffer, 0)) < 0)
 		{
+			perror("recv()");
 			return;
 		}
 
