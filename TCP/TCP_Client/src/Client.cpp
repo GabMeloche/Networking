@@ -113,3 +113,21 @@ void Client::ReceivePing()
 	char ping[1];
 	recv(m_socket, ping, sizeof(char), 0);
 }
+
+void Client::ReceiveBroadcast()
+{
+	while (true)
+	{
+		char buffer[1024];
+		int n = 0;
+
+		if ((n = recv(m_socket, buffer, sizeof buffer, 0)) < 0)
+		{
+			return;
+		}
+
+		buffer[n] = '\0';
+
+		std::cout << buffer << std::endl;
+	}
+}

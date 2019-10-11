@@ -17,6 +17,7 @@ public:
 	void ReceiveConfirmation();
 	void ReceivePing();
 	void ReceiveNames();
+	void ReceiveBroadcast();
 	
 public:
 	std::string m_name;

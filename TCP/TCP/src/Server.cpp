@@ -87,7 +87,7 @@ void Server::Accept()
 		}
 
 		std::string name = Receive(cSock, false);
-		std::cout << name << " has joined the server\n";
+		Broadcast(name + " has joined the server\n", name);
 		
 		m_cSock.try_emplace(std::string(name), cSock);
 
@@ -135,7 +135,7 @@ void Server::ReceiveThreaded(SOCKET p_socket, std::string p_name)
 
 		if ((n = recv(p_socket, buffer, sizeof buffer, 0)) < 0)
 		{
-			std::cout << p_name << " has disconnected from server\n";
+			Broadcast(p_name + " has disconnected from server\n", p_name);
 			return;
 		}
 
@@ -154,44 +154,8 @@ void Server::ReceiveThreaded(SOCKET p_socket, std::string p_name)
 			continue;
 		}
 		send(p_socket, message, sizeof(char) * 9, 0);
-
+		Broadcast(p_name + ": " + tmp, p_name);
 	}
-}
-
-char* Server::ReceiveMessage(std::pair<const std::string, SOCKET>& p_cSock)
-{
-	char buffer[1024];
-	int n = 0;
-
-	if ((n = recv(p_cSock.second, buffer, sizeof buffer, 0)) < 0)
-	{
-		perror("recv() server");
-		std::cin.get();
-		exit(errno);
-	}
-
-	buffer[n] = '\0';
-	std::cout << p_cSock.first << ": " << buffer << std::endl;
-
-	const char* message = "Received";
-
-	send(p_cSock.second, message, sizeof(char) * 9, 0);
-	return buffer;
-}
-
-void Server::ReceiveAll()
-{
-	//while (true)
-	{
-		for (auto& socket : m_cSock)
-		{
-			ReceiveMessage(socket);
-		}
-	}
-}
-void Server::Print(const char* p_message)
-{
-
 }
 
 bool Server::Ping(SOCKET p_socket)
@@ -215,4 +179,12 @@ void Server::SendNames(SOCKET p_socket)
 	send(p_socket, names.c_str(), sizeof(names), 0);
 }
 
+void Server::Broadcast(const std::string& p_message, std::string p_name)
+{
+	for (auto& socket: m_cSock)
+	{
+		send(socket.second, p_message.c_str(), sizeof(p_message), 0);
+	}
 
+	std::cout << p_message << std::endl;
+}

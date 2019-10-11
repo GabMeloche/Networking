@@ -23,6 +23,7 @@ public:
 	bool Ping(SOCKET p_socket);
 	void ReceiveAll();
 	void SendNames(SOCKET p_socket);
+	void Broadcast(const std::string& p_message, std::string p_name);
 	
 	bool m_listen = true;
 	unsigned int m_port;
