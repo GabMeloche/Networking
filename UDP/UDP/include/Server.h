@@ -19,7 +19,7 @@ public:
 	void Accept();
 	void ReceiveThreaded(SOCKET p_socket, std::string p_name);
 	void SendNames(SOCKET p_socket);
-	void Broadcast(const std::string& p_message, std::string p_name);
+	void Broadcast(const char* p_message);
 	std::string Receive(SOCKET p_socket, bool p_print);
 
 	unsigned int m_port;

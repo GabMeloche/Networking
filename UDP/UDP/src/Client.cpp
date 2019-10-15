@@ -11,9 +11,9 @@ Client::~Client()
 	std::cin.get();
 }
 
-void Client::Init(const std::string p_name)
+void Client::Init(const char* p_name)
 {
-	m_name = p_name;
+	m_name = std::string(p_name);
 	
 	WSADATA wsa;
 	int err = WSAStartup(MAKEWORD(2, 2), &wsa);
@@ -36,9 +36,9 @@ void Client::Init(const std::string p_name)
 	std::cout << "init socket" << std::endl;
 }
 
-bool Client::Connect(unsigned p_port, std::string p_address)
+bool Client::Connect(unsigned p_port, const char* p_address)
 {
-	if (p_address.empty())
+	if (p_address[0] == '\0')
 		p_address = "127.0.0.1";
 	
 	char request = '1';
@@ -47,7 +47,7 @@ bool Client::Connect(unsigned p_port, std::string p_address)
 	struct hostent* hostinfo = NULL;
 	m_address = SOCKADDR_IN{ 0 }; /* initialise la structure avec des 0 */
 
-	inet_pton(AF_INET, p_address.c_str(), &m_address.sin_addr);/* On encode l'adresse dans la variable sin.sin_addr*/
+	inet_pton(AF_INET, p_address, &m_address.sin_addr);/* On encode l'adresse dans la variable sin.sin_addr*/
 	m_address.sin_port = htons(p_port); /* on utilise htons pour le port */
 	m_address.sin_family = AF_INET;
 
@@ -61,12 +61,12 @@ bool Client::Connect(unsigned p_port, std::string p_address)
 		return false;
 	}
 	
-	Send(m_name);
+	Send(m_name.c_str());
 	std::cout << m_name << " is connected to " << p_address << " on port " << p_port << std::endl;
 	return true;
 }
 
-void Client::Send(std::string p_message)
+void Client::Send(const char* p_message)
 {
 	
 	std::string buffer{ p_message };
@@ -115,7 +115,7 @@ void Client::Receive()
 	}
 }
 
-void Client::CreateServer(const unsigned int p_port, std::string p_ip)
+void Client::CreateServer(const unsigned int p_port, const char* p_ip)
 {
 	m_server.Init();
 	m_server.Bind(p_port);
@@ -123,5 +123,5 @@ void Client::CreateServer(const unsigned int p_port, std::string p_ip)
 
 	std::thread t{ &Server::Accept, m_server };
 	t.detach();
-	Connect(p_port, std::move(p_ip));
+	Connect(p_port, p_ip);
 }
