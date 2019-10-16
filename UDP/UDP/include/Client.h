@@ -16,23 +16,13 @@ extern "C"
 		Client() = default;
 		~Client();
 
-		void Init(const char* p_name);
-		bool Connect(unsigned int p_port, const char* p_address);
+		void Init(int p_port);
 		void Send(const char* p_message);
-		void ReceiveNames();
 		void Receive();
-		void CreateServer(const unsigned int p_port, const char* p_ip);
-
-		//inline Server& GetServer(){ return m_server; }
-		inline std::string GetName() const { return m_name; }
-		inline SOCKET GetSocket() const { return m_socket; }
-		inline SOCKADDR_IN GetAddress() const { return m_address; }
 
 	public:
 		std::string m_name;
 		SOCKET m_socket{};
 		SOCKADDR_IN m_address{};
-		Server m_server;
-
 	};
 }
