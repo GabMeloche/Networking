@@ -4,6 +4,7 @@
 #include <iostream>
 #include <thread>
 #include <map>
+#include <vector>
 
 extern "C"
 {
@@ -24,6 +25,6 @@ extern "C"
 		unsigned int m_port;
 		SOCKET m_socket;
 		SOCKADDR_IN m_address;
-		std::map<std::string, int> m_clients;
+		std::vector<sockaddr_in> m_clients;
 	};
 }

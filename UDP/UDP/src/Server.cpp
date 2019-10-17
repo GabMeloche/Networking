@@ -81,12 +81,23 @@ extern "C"
 			std::string tmp = buffer;
 			std::cout << "received: " << tmp << " from " << GetAddress(from) << std::endl;
 
-			if (m_clients.find(GetAddress(from)) == m_clients.end())
+
+			size_t i = 0;
+			while (i != m_clients.size())
 			{
-				std::cout << "new connection: " << GetAddress(from) << std::endl;
-				m_clients.try_emplace(GetAddress(from), ++m_id);
+				if (GetAddress(m_clients[i]) == GetAddress(from))
+				{
+					break;
+				}
+				++i;
 			}
 
+			if (i == m_clients.size())
+			{
+				std::cout << "new connection: " << GetAddress(from) << std::endl;
+				m_clients.push_back(from);
+			}
+			
 			Broadcast(buffer);
 			if (tmp == "CONNECTED_USERS")
 			{
@@ -98,16 +109,16 @@ extern "C"
 	std::string Server::GetAddress(sockaddr_in& addr)
 	{
 		char buff[INET6_ADDRSTRLEN] = { 0 };
-		return inet_ntop(addr.sin_family, (void*) & (addr.sin_addr), buff, INET6_ADDRSTRLEN);
+		return inet_ntop(addr.sin_family, static_cast<void*>(&(addr.sin_addr)), buff, INET6_ADDRSTRLEN);
 	}
 
 	void Server::Broadcast(const char* p_message)
 	{
 		std::string buffer{ p_message };
 
-		/*for (auto& client : m_clients)
+		for (auto& client : m_clients)
 		{
-			sockaddr_in to = client.first;
+			sockaddr_in to = client;
 			socklen_t toLen = sizeof(to);
 			int n = sendto(m_socket, buffer.c_str(), buffer.length(), 0, reinterpret_cast<sockaddr*>(&to), toLen);
 
@@ -116,6 +127,6 @@ extern "C"
 				perror("server sendto()");
 			}
 
-		}*/
+		}
 	}
 }
