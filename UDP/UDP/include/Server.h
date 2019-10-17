@@ -5,9 +5,11 @@
 #include <thread>
 #include <map>
 #include <vector>
+#include <Vector3.h>
 
 extern "C"
 {
+	UDP_API void RunServer();
 	//1 client socket per client connection
 	class UDP_API Server
 	{

@@ -14,7 +14,7 @@ int main()
 	if (option == "s")
 	{
 		std::cout << "server selected\n";
-		server.Init();
+		RunServer();
 		while (true)
 		{
 			

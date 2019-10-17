@@ -179,6 +179,10 @@
     <ClInclude Include="include\Export.h" />
     <ClInclude Include="include\Server.h" />
     <ClInclude Include="include\stdafx.h" />
+    <ClInclude Include="include\Vector3.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

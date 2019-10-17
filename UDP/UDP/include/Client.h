@@ -6,16 +6,18 @@
 #include <string>
 #include <iostream>
 
-#include <Server.h>
-
 extern "C"
 {
+	UDP_API void RunClient();
+	UDP_API void Send(float p_x, float p_y, float p_z);
+	
 	class UDP_API Client
 	{
 	public:
 		Client() = default;
 		~Client();
 
+		static void RunClient();
 		void Init(int p_port);
 		void Send(const char* p_message);
 		void Receive();

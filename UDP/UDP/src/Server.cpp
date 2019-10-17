@@ -1,11 +1,19 @@
 #include <stdafx.h>
 #include <Server.h>
 #include <WS2tcpip.h>
+#include <Vector3.h>
 
 #define PORT 8755
 
 extern "C"
 {
+	
+	void RunServer()
+	{		
+		Server server{};
+		server.Init();
+	}
+	
 	Server::~Server()
 	{
 		closesocket(m_socket);
@@ -69,8 +77,8 @@ extern "C"
 			int n = 0;
 
 			sockaddr_in from;
-			socklen_t fromlen = sizeof(from);
-			if ((n = recvfrom(m_socket, buffer, sizeof buffer, 0, reinterpret_cast<sockaddr*>(&from), &fromlen)) < 0)
+			socklen_t fromLen = sizeof(from);
+			if ((n = recvfrom(m_socket, buffer, sizeof buffer, 0, reinterpret_cast<sockaddr*>(&from), &fromLen)) < 0)
 			{
 				std::cout << "server recvfrom() error\n";
 				return;
@@ -97,7 +105,7 @@ extern "C"
 				std::cout << "new connection: " << GetAddress(from) << std::endl;
 				m_clients.push_back(from);
 			}
-			
+
 			Broadcast(buffer);
 			if (tmp == "CONNECTED_USERS")
 			{
