@@ -9,7 +9,7 @@
 
 extern "C"
 {
-	UDP_API void RunServer();
+	static int clientId = 0;
 	//1 client socket per client connection
 	class UDP_API Server
 	{
@@ -23,10 +23,15 @@ extern "C"
 		void Broadcast(const char* p_message);
 		std::string GetAddress(sockaddr_in& addr);
 
-		int m_id;
+		inline static int GetNewId() { return ++clientId; }
+
 		unsigned int m_port;
 		SOCKET m_socket;
 		SOCKADDR_IN m_address;
 		std::vector<sockaddr_in> m_clients;
+
 	};
+	
+	UDP_API Server* RunServer();
+	UDP_API int NumberOfConnections(Server* p_server);
 }

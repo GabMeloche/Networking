@@ -4,16 +4,24 @@
 #include <Vector3.h>
 
 #define PORT 8755
+//Server* Server::m_instance = nullptr;
 
 extern "C"
 {
 	
-	void RunServer()
-	{		
-		Server server{};
-		server.Init();
+	Server* RunServer()
+	{
+		//TODO: delete server
+		Server* server = new Server{};
+		server->Init();
+		return server;
 	}
-	
+
+	int NumberOfConnections(Server* p_server)
+	{
+		return static_cast<int>(p_server->m_clients.size()); 
+	}
+
 	Server::~Server()
 	{
 		closesocket(m_socket);
@@ -24,7 +32,6 @@ extern "C"
 
 	void Server::Init()
 	{
-		m_id = 0;
 		WSADATA wsa;
 		int err = WSAStartup(MAKEWORD(2, 2), &wsa);
 		if (err < 0)
@@ -57,7 +64,7 @@ extern "C"
 		m_address.sin_addr.s_addr = INADDR_ANY; /* nous sommes un serveur, nous acceptons n'importe quelle adresse */
 		m_address.sin_port = htons(p_port);
 
-		if (bind(m_socket, (SOCKADDR*)& m_address, sizeof m_address) == SOCKET_ERROR)
+		if (bind(m_socket, reinterpret_cast<SOCKADDR*>(&m_address), sizeof m_address) == SOCKET_ERROR)
 		{
 			perror("bind()");
 			std::cout << "SOCKET_ERROR" << std::endl;

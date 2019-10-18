@@ -2,28 +2,34 @@
 #include <Client.h>
 #include <Vector3.h>
 #include <thread>
+#include <Server.h>
 
 extern "C"
 {
-	void RunClient()
+	Client* RunClient()
 	{
-		Client client{};
-		client.Init(8755);
+		//TODO: delete client
+		Client* client = new Client{};
+		client->Init(8755);
+		client->SetId(Server::GetNewId());
+		return client;
 	}
 
-	void Send(float p_x, float p_y, float p_z)
+	void CloseClient(Client* p_client)
 	{
-		
+		closesocket(p_client->m_socket);
+		WSACleanup();
 	}
 	
-	void Client::RunClient()
+	void Send(Client* p_client, float p_x, float p_y, float p_z)
 	{
-		Client client{};
-		client.Init(8755);
-		while (true)
-		{
+		//std::string str(std::to_string(p_client->GetId()) + "|" + std::to_string(p_x) + "|" + std::to_string(p_y) + "|" + std::to_string(p_z));
+		std::string str(std::to_string(p_client->GetId()) + " " + std::to_string(p_x) + " " + std::to_string(p_y) + " " + std::to_string(p_z));
+		p_client->Send(str.c_str());
+	}
 
-		}
+	void SendToUnity()
+	{
 	}
 
 	Client::~Client()
@@ -40,7 +46,6 @@ extern "C"
 	void Client::Init(int p_port)
 	{
 		//m_name = std::string(p_name);
-
 		WSADATA wsa;
 		int err = WSAStartup(MAKEWORD(2, 2), &wsa);
 		if (err < 0)
@@ -104,8 +109,12 @@ extern "C"
 			}
 
 			buffer[n] = '\0';
-
-			std::cout << buffer << std::endl;
+			int Id;
+			float x, y, z;
+			int i = sscanf_s(buffer, "%d" "%f" "%f" "%f", &Id, &x, &y, &z);
+			
+			if (i < 3)
+				std::cout << "Client " << Id << " pos: " << x << ", " << y << ", " << z << std::endl;
 		}
 	}
 }
