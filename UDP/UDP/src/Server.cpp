@@ -22,6 +22,12 @@ extern "C"
 		return static_cast<int>(p_server->m_clients.size()); 
 	}
 
+	void DestroyServer(Server* p_server)
+	{
+		closesocket(p_server->m_socket);
+		WSACleanup();
+	}
+
 	Server::~Server()
 	{
 		closesocket(m_socket);

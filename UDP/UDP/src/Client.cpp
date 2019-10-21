@@ -28,10 +28,6 @@ extern "C"
 		p_client->Send(str.c_str());
 	}
 
-	void SendToUnity()
-	{
-	}
-
 	Client::~Client()
 	{
 		std::cout << "close listen" << std::endl;
@@ -67,11 +63,11 @@ extern "C"
 
 		m_address = SOCKADDR_IN{ 0 };
 		m_address.sin_family = AF_INET;
-		//m_address.sin_addr.s_addr = reinterpret_cast<ULONG>("10.5.5.104");
+		//m_address.sin_addr.s_addr = reinterpret_cast<ULONG>("10.5.5.105");
 		m_address.sin_port = htons(p_port);
 
 		std::cout << "init socket" << std::endl;
-		if (inet_pton(AF_INET, "127.0.0.1", &m_address.sin_addr) <= 0)
+		if (inet_pton(AF_INET, "10.5.5.105", &m_address.sin_addr) <= 0)
 		{
 			std::cout << "client inet_pton error\n";
 			return;
@@ -112,9 +108,24 @@ extern "C"
 			int Id;
 			float x, y, z;
 			int i = sscanf_s(buffer, "%d" "%f" "%f" "%f", &Id, &x, &y, &z);
+
+			m_posBuffer = { x, y, z };
 			
 			if (i < 3)
 				std::cout << "Client " << Id << " pos: " << x << ", " << y << ", " << z << std::endl;
 		}
+	}
+	
+	void SendToUnity(Client* p_client, float& p_x, float& p_y, float& p_z)
+	{
+		p_x = p_client->m_posBuffer.x;
+		p_y = p_client->m_posBuffer.y;
+		p_z = p_client->m_posBuffer.z;
+	}
+	
+	void DestroyClient(Client* p_client)
+	{
+		closesocket(p_client->m_socket);
+		WSACleanup();
 	}
 }

@@ -34,4 +34,5 @@ extern "C"
 	
 	UDP_API Server* RunServer();
 	UDP_API int NumberOfConnections(Server* p_server);
+	UDP_API void DestroyServer(Server* p_server);
 }

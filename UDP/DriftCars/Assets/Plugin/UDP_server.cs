@@ -12,6 +12,9 @@ public class UDP_server : MonoBehaviour
     [DllImport("UDP", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NumberOfConnections")]
     private static extern int NumberOfConnections(IntPtr p_server);
 
+    [DllImport("UDP", CallingConvention = CallingConvention.Cdecl, EntryPoint = "DestroyServer")]
+    private static extern void DestroyServer(IntPtr p_server);
+
     private IntPtr m_server;
     void Start()
     {
@@ -22,5 +25,10 @@ public class UDP_server : MonoBehaviour
     void Update()
     {
         Debug.Log(NumberOfConnections(m_server));
+    }
+
+    void OnDestroy()
+    {
+        DestroyServer(m_server);
     }
 }
